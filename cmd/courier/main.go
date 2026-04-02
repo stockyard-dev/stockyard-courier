@@ -1,4 +1,6 @@
 package main
-import("log";"os";"github.com/stockyard-dev/stockyard-courier/internal/license";"github.com/stockyard-dev/stockyard-courier/internal/server";"github.com/stockyard-dev/stockyard-courier/internal/store")
-func main(){port:=getEnv("PORT","9770");dataDir:=getEnv("DATA_DIR","./data");licenseKey:=os.Getenv("COURIER_LICENSE_KEY");tier:="free";if licenseKey!=""{if license.Validate(licenseKey){tier="pro";log.Println("License valid — Pro tier active")}else{log.Println("Warning: invalid license key")}};db,err:=store.Open(dataDir);if err!=nil{log.Fatalf("store: %v",err)};defer db.Close();srv:=server.New(db,tier);log.Printf("Stockyard Internal Message Queue listening on :%s (tier: %s)",port,tier);log.Fatal(srv.ListenAndServe(":"+port))}
-func getEnv(key,fallback string)string{if v:=os.Getenv(key);v!=""{return v};return fallback}
+import ("fmt";"log";"net/http";"os";"github.com/stockyard-dev/stockyard-courier/internal/server";"github.com/stockyard-dev/stockyard-courier/internal/store")
+func main(){port:=os.Getenv("PORT");if port==""{port="9770"};dataDir:=os.Getenv("DATA_DIR");if dataDir==""{dataDir="./courier-data"}
+db,err:=store.Open(dataDir);if err!=nil{log.Fatalf("courier: %v",err)};defer db.Close();srv:=server.New(db)
+fmt.Printf("\n  Courier — internal message queue\n  Dashboard:  http://localhost:%s/ui\n  API:        http://localhost:%s/api\n\n",port,port)
+log.Printf("courier: listening on :%s",port);log.Fatal(http.ListenAndServe(":"+port,srv))}
