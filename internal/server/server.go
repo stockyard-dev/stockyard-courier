@@ -34,6 +34,7 @@ patch.Queue=existing.Queue};if patch.Payload==""{
 patch.Payload=existing.Payload};if patch.Status==""{
 patch.Status=existing.Status};if patch.ProcessedAt==""{
 patch.ProcessedAt=existing.ProcessedAt}
+    if patch.Priority==0{patch.Priority=existing.Priority};if patch.Retries==0{patch.Retries=existing.Retries};if patch.MaxRetries==0{patch.MaxRetries=existing.MaxRetries}
     s.db.Update(&patch);wj(w,200,s.db.Get(patch.ID))
 }
 func(s *Server)del(w http.ResponseWriter,r *http.Request){s.db.Delete(r.PathValue("id"));wj(w,200,map[string]string{"deleted":"ok"})}
